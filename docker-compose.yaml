@@ -9,7 +9,7 @@ x-airflow-common: &airflow-common
     - AIRFLOW__WEBSERVER__RBAC=True
     - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://airflow:airflow@postgres:5432/airflow
     - AIRFLOW__WEBSERVER__SECRET_KEY=kWUdB2sc9P4c15J7LG1yCg==
-    - AIRFLOW__CORE__FERNET_KEY=47eP5DDQ0rdbX5SSFYX9OHzdsVAi8pFjTAc9DEKL-jI=
+    - AIRFLOW__CORE__FERNET_KEY="Input your fernet key"
     - _PIP_ADDITIONAL_REQUIREMENTS=pandas psycopg2-binary SQLAlchemy
   volumes:
     - ./dags:/opt/airflow/dags
