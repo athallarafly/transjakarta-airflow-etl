@@ -1,0 +1,73 @@
+version: '3'
+
+x-airflow-common: &airflow-common
+  image: apache/airflow:2.7.3
+  environment:
+    - AIRFLOW__CORE__EXECUTOR=LocalExecutor
+    - AIRFLOW__CORE__LOAD_EXAMPLES=False
+    - AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION=False
+    - AIRFLOW__WEBSERVER__RBAC=True
+    - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://airflow:airflow@postgres:5432/airflow
+    - AIRFLOW__WEBSERVER__SECRET_KEY=kWUdB2sc9P4c15J7LG1yCg==
+    - AIRFLOW__CORE__FERNET_KEY=47eP5DDQ0rdbX5SSFYX9OHzdsVAi8pFjTAc9DEKL-jI=
+    - _PIP_ADDITIONAL_REQUIREMENTS=pandas psycopg2-binary SQLAlchemy
+  volumes:
+    - ./dags:/opt/airflow/dags
+    - ./data:/opt/airflow/data
+  user: "${AIRFLOW_UID:-50000}:0"
+
+services:
+  postgres:
+    image: postgres:13
+    container_name: airflow_postgres
+    environment:
+      - POSTGRES_USER=airflow
+      - POSTGRES_PASSWORD=airflow
+      - POSTGRES_DB=airflow
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5433:5432"  # supaya bisa diakses dari pgAdmin di Windows
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U airflow"]
+      interval: 10s
+      retries: 5
+
+  airflow-init:
+    <<: *airflow-common
+    depends_on:
+      - postgres
+    entrypoint: /bin/bash
+    command:
+      - -c
+      - |
+        airflow db init
+        airflow users create \
+          --username admin \
+          --password admin \
+          --firstname Athalla \
+          --lastname Rafly \
+          --role Admin \
+          --email admin@example.com
+
+  webserver:
+    <<: *airflow-common
+    container_name: airflow_webserver
+    command: webserver
+    ports:
+      - "8080:8080"
+    depends_on:
+      - postgres
+      - airflow-init
+
+  scheduler:
+    <<: *airflow-common
+    container_name: airflow_scheduler
+    command: scheduler
+    depends_on:
+      - postgres
+      - airflow-init
+
+volumes:
+  postgres_data:
+  airflow_data:
