@@ -25,19 +25,6 @@ The ETL pipeline performs the following steps:
 3. **Load**
    - Load the cleaned dataset into a **local PostgreSQL database**.
 
-## Project Structure
-project-folder
-│
-├── dags/
-│ └── etl_transjakarta.py
-│
-├── data/
-│ └── transjakarta.csv
-│
-├── docker-compose.yml
-│
-└── README.md
-
 ## Technologies Used
 
 - Apache Airflow
